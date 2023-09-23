@@ -1,4 +1,4 @@
-import { StyleSheet, View, TextInput, Button, Alert, Modal, Image } from "react-native";
+import { StyleSheet, View, TextInput, Pressable, Text, Alert, Modal, Image } from "react-native";
 import { useState } from "react";
 
 export default function TaskInput(props) {
@@ -22,8 +22,8 @@ export default function TaskInput(props) {
           <Image source={require('../assets/images/goal.png')} style={styles.image}/>
           <TextInput style={styles.textInput} placeholder='Enter your task here!' onChangeText={taskInputHandler} value={enteredTaskText} />
           <View style={styles.buttonContainer}>
-            <View style={styles.button}><Button title='Add' onPress={addTaskHandler} color='#b180f0'/></View>
-            <View style={styles.button}><Button title='Cancel' onPress={props.onCancel} color='#f31282'/></View>
+            <Pressable style={styles.button} onPress={addTaskHandler} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add</Text></Pressable>
+            <Pressable style={styles.button1} onPress={props.onCancel} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Cancel</Text></Pressable>
           </View>
         </View>
       </Modal>
@@ -44,6 +44,24 @@ const styles = StyleSheet.create({
       button: {
         width: 100,
         marginHorizontal: 8,
+        justifyContent: 'center',
+        backgroundColor: '#b180f0',
+        borderRadius: 2,
+        height: 35,
+      },
+      button1: {
+        width: 100,
+        marginHorizontal: 8,
+        justifyContent: 'center',
+        backgroundColor: '#f31282',
+        borderRadius: 2,
+        height: 35,
+      },
+      buttonText: {
+        color: 'white', 
+        textTransform: 'uppercase', 
+        fontWeight: 500, 
+        textAlign: 'center'
       },
       textInput: {
         borderWidth: 1,

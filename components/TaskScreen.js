@@ -1,4 +1,4 @@
-import { Alert, View, Button, Text, FlatList, StyleSheet } from "react-native";
+import { Alert, View, Pressable, Text, FlatList, StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import { useState } from "react";
 import TaskInput from './TaskInput';
@@ -35,7 +35,9 @@ export default function TaskScreen(){
         <>
             <StatusBar style='inverted'/>
             <View style={styles.taskScreenContainer}>
-                <Button title='Add New Task' color='#b180f0' onPress={openModal}/>
+                <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}>
+                    <Text style={styles.buttonText}>Add New Task</Text>
+                </Pressable>
                 <TaskInput onAddTask={addTaskHandler} showModal={modalVisibility} onCancel={closeModal}/>
                 <View style={styles.tasksContainer}>
                     <Text style={styles.title}>List of tasks:</Text>
@@ -67,5 +69,17 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: '#ffffff',
         paddingVertical: 13,
+    },
+    button: {
+        justifyContent: 'center',
+        backgroundColor: '#b180f0',
+        borderRadius: 2,
+        height: 35,
+    },
+    buttonText: {
+        color: 'white', 
+        textTransform: 'uppercase', 
+        fontWeight: 500, 
+        textAlign: 'center'
     },
 });

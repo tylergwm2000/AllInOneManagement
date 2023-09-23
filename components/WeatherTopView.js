@@ -1,12 +1,10 @@
 import { View, Text, StyleSheet, Image, Pressable, Dimensions } from 'react-native';
-import { useEffect } from 'react';
 
 export default function WeatherTopView(props) {
     var currentTime = props.weatherData.current_weather.time;
     var weathercode = props.weatherData.current_weather.weathercode;
-    var currentWeatherImage;
-    var fontStyle;
-    var forecast;
+    var currentWeatherImage, fontStyle, forecast;
+    var hourlyIndex;
     for (let i = 0; i < props.weatherData.hourly.time.length; i++) {
         if (currentTime == props.weatherData.hourly.time[i]) {
             hourlyIndex = i;

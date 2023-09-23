@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { View, Button, Text, StyleSheet, ScrollView, Pressable, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Dimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import LocationInput from './LocationInput';
 
@@ -78,11 +78,13 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
         <>
             <StatusBar style='inverted'/>
             <View style={styles.clockScreenContainer}>
-              <Button title='Add New Timezone' color='#b180f0' onPress={openModal}/>
+              <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}>
+                <Text style={styles.buttonText}>Add New Timezone</Text>
+              </Pressable>
               <View style={styles.listContainer}>
                 <ScrollView style={styles.list}>
                   {timezones.map((timezone) => 
-                  <Pressable key={timezone.location} style={styles.timezone} onPress={deleteTimezone.bind(this, timezone.location)}>
+                  <Pressable key={timezone.location} style={styles.timezone} onPress={deleteTimezone.bind(this, timezone.location)} android_ripple={{color: '#210644'}}>
                     <Text style={styles.white}>{timezone.location}{'\n'}{'\n'}{timezone.time}</Text>
                   </Pressable>)}
                 </ScrollView>
@@ -108,7 +110,6 @@ const styles = StyleSheet.create({
       color: 'white',
       width: Dimensions.get('screen').width-32,
       marginVertical: 8,
-      height: 60, //change this or remove it?
       padding: 5,
       borderRadius: 6,
     },
@@ -121,5 +122,17 @@ const styles = StyleSheet.create({
     },
     white: {
       color: 'white',
+    },
+    button: {
+      justifyContent: 'center',
+      backgroundColor: '#b180f0',
+      borderRadius: 2,
+      height: 35,
+    },
+    buttonText: {
+      color: 'white', 
+      textTransform: 'uppercase', 
+      fontWeight: 500, 
+      textAlign: 'center'
     },
 });

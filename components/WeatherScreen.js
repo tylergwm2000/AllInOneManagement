@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { View, Button, Text, StyleSheet, ScrollView, ImageBackground, Alert, Dimensions } from 'react-native';
+import { View, Pressable, Text, StyleSheet, ScrollView, ImageBackground, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import LocationInput from './LocationInput';
 import WeatherTopView from './WeatherTopView';
+import WeatherSettings from './WeatherSettings';
 
 export default function WeatherScreen(){
   const [locationInputVisibility, setModalVisibility] = useState(false);
@@ -31,6 +32,7 @@ export default function WeatherScreen(){
 
   async function getWeatherData(location){
     setModalVisibility(false);
+    setSettingsVisibility(false);	
     setLocation(location);
     setLocationPermission(true);
     setCity(location[0]);
@@ -79,6 +81,15 @@ export default function WeatherScreen(){
       getWeatherData(location);
   }, [location]);
 
+  useEffect(() => {
+    let interval = setInterval(() => {
+      getWeatherData(location); 
+    }, 3600000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   //create settings modal
   //work on weatherhourdayview
   //create weatherbottomview
@@ -92,13 +103,14 @@ export default function WeatherScreen(){
       <StatusBar style='inverted'/>
       <ImageBackground source={require('../assets/images/rainBackground.gif')} resizeMode='cover' style={styles.image}>
         <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Button title='Add Location' color='#b180f0' onPress={openModal}/>}
+          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
               {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
         </View>
       </ImageBackground>
     </>);
@@ -107,13 +119,14 @@ export default function WeatherScreen(){
       <StatusBar style='inverted'/>
       <ImageBackground source={require('../assets/images/foggyBackground.jpg')} resizeMode='cover' style={styles.image}>
         <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Button title='Add Location' color='#b180f0' onPress={openModal}/>}
+          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
               {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
         </View>
       </ImageBackground>
     </>);
@@ -123,29 +136,31 @@ export default function WeatherScreen(){
       <StatusBar style='dark'/>
       <ImageBackground source={require('../assets/images/weatherBackgroundDay.png')} resizeMode='cover' style={styles.image}>
         <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Button title='Add Location' color='#b180f0' onPress={openModal}/>}
+          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
               {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
         </View>
       </ImageBackground>
     </>); 
   } else {
     return(
-      <>
+    <>
       <StatusBar style='inverted'/>
       <ImageBackground source={require('../assets/images/weatherBackgroundNight.jpg')} resizeMode='cover' style={styles.image}>
         <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Button title='Add Location' color='#b180f0' onPress={openModal}/>}
+          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
               {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
         </View>
       </ImageBackground>
     </>);
@@ -169,5 +184,17 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     justifyContent: 'center',
+  },
+  button: {
+      justifyContent: 'center',
+      backgroundColor: '#b180f0',
+      borderRadius: 2,
+      height: 35,
+  },
+  buttonText: {
+      color: 'white', 
+      textTransform: 'uppercase', 
+      fontWeight: 500, 
+      textAlign: 'center'
   },
 });

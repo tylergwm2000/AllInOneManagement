@@ -1,4 +1,4 @@
-import { StyleSheet, Modal, View, Button, Image, TextInput, Alert } from "react-native";
+import { StyleSheet, Modal, View, Image, TextInput, Alert, Pressable, Text } from "react-native";
 import { useState } from "react";
 
 export default function LocationInput(props){ 
@@ -35,8 +35,8 @@ export default function LocationInput(props){
                 <Image source={require('../assets/images/city.png')} style={styles.image}/>
                 <TextInput style={styles.textInput} placeholder="Enter a location here!" onChangeText={cityInputHandler} value={enteredCity}/>
                 <View style={styles.buttonContainer}>
-                    <View style={styles.button}><Button title='Add' onPress={addLocation} color='#b180f0'/></View>
-                    <View style={styles.button}><Button title='Cancel' onPress={props.onCancel} color='#f31282'/></View>
+                    <Pressable style={styles.button} onPress={addLocation} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add</Text></Pressable>
+                    <Pressable style={styles.button1} onPress={props.onCancel} android_ripple={{color: '#f31212'}}><Text style={styles.buttonText}>Cancel</Text></Pressable>
                 </View>
             </View>
         </Modal>
@@ -54,6 +54,24 @@ const styles = StyleSheet.create({
     button: {
         width: 100,
         marginHorizontal: 8,
+        justifyContent: 'center',
+        backgroundColor: '#b180f0',
+        borderRadius: 2,
+        height: 35,
+    },
+    button1: {
+        width: 100,
+        marginHorizontal: 8,
+        justifyContent: 'center',
+        backgroundColor: '#f31282',
+        borderRadius: 2,
+        height: 35,
+    },
+    buttonText: {
+        color: 'white', 
+        textTransform: 'uppercase', 
+        fontWeight: 500, 
+        textAlign: 'center'
     },
     buttonContainer: {
         flexDirection: 'row',
