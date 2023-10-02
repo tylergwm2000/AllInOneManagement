@@ -30,7 +30,7 @@ export default function WeatherScreen(){
     setSettingsVisibility(false);
   }
 
-  async function getWeatherData(location){
+  async function getWeatherData(location, units){
     setModalVisibility(false);
     setSettingsVisibility(false);	
     setLocation(location);
@@ -39,7 +39,11 @@ export default function WeatherScreen(){
     lat = location[1];
     lon = location[2];
     var timezone = await getTimezone(lat, lon);
-    var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+    if (typeof(units) != 'undefined'){
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&temperature_unit='+units['temp']+'&windspeed_unit='+units['wind']+'&precipitation_unit='+units['rain']+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+    } else {
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+    }
     var response = await fetch(url);
     var data = await response.json();
     //console.log(data);
@@ -66,7 +70,7 @@ export default function WeatherScreen(){
     const url = 'https://timeapi.io/api/TimeZone/coordinate?latitude='+latitude+'&longitude='+longitude;
     var response = await fetch(url);
     var data = await response.json();
-    console.log(data);
+    //console.log(data);
     if (data.timeZone != null){
       return data.timeZone;
     }
@@ -106,11 +110,11 @@ export default function WeatherScreen(){
           {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
-              {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
+              <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/>
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/>
         </View>
       </ImageBackground>
     </>);
@@ -122,11 +126,11 @@ export default function WeatherScreen(){
           {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
           <View style={styles.listContainer}>
             <ScrollView style={styles.list}>
-              {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
+              <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/>
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
+          <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/>
         </View>
       </ImageBackground>
     </>);
@@ -143,7 +147,7 @@ export default function WeatherScreen(){
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
+          {weatherData ? <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/> : null}
         </View>
       </ImageBackground>
     </>); 
@@ -160,7 +164,7 @@ export default function WeatherScreen(){
             </ScrollView>
           </View>
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} onClose={closeSettings} onSave={getWeatherData}/>
+          {weatherData ? <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/> : null}
         </View>
       </ImageBackground>
     </>);

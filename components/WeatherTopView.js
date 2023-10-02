@@ -4,17 +4,30 @@ export default function WeatherTopView(props) {
     var currentTime = props.weatherData.current_weather.time;
     var weathercode = props.weatherData.current_weather.weathercode;
     var currentWeatherImage, fontStyle, forecast;
-    var hourlyIndex;
+    var timeOfDay;
+    currentDate = new Date(currentTime);
+    sunrise = new Date(props.weatherData.daily.sunrise[0]);
+    sunset = new Date(props.weatherData.daily.sunset[0]);
+    if (currentDate > sunrise && currentDate < sunset){
+      timeOfDay='morning';
+    } else {
+      timeOfDay='night';
+    }
     for (let i = 0; i < props.weatherData.hourly.time.length; i++) {
-        if (currentTime == props.weatherData.hourly.time[i]) {
-            hourlyIndex = i;
+        var compareDate = new Date(props.weatherData.hourly.time[i]);
+        if (currentDate < compareDate) {
+            var hourlyIndex = i;
             break;
-        } else 
-            continue;
+        }
     }
     if (weathercode == 1 || weathercode == 2 || weathercode == 3){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode123.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.dayFont;
+        if (timeOfDay == 'morning'){
+            currentWeatherImage = <Image source={require('../assets/images/weathercode123.png')} style={styles.weatherImage}/>;
+            fontStyle = styles.dayFont;
+        } else {
+            currentWeatherImage = <Image source={require('../assets/images/weathercode123night.png')} style={styles.weatherImage}/>;
+            fontStyle = styles.nightFont;
+        }
         forecast='Cloudy';
     } else if (weathercode == 45 || weathercode == 48){
         currentWeatherImage = <Image source={require('../assets/images/weathercode45.png')} style={styles.weatherImage}/>;
