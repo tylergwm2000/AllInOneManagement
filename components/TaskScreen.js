@@ -65,10 +65,10 @@ const styles = StyleSheet.create({
         flex: 5,
     },
     title: {
-        fontWeight: 'bold',
         fontSize: 20,
         color: '#ffffff',
         paddingVertical: 13,
+        fontFamily: 'Helvetica-Bold',
     },
     button: {
         justifyContent: 'center',
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
         color: 'white', 
         textTransform: 'uppercase', 
         fontWeight: 500, 
-        textAlign: 'center'
+        textAlign: 'center',
+        fontFamily: 'Helvetica',
     },
 });

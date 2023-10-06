@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
       marginVertical: 15,
     },
     white: {
+      fontFamily: 'Helvetica',
       color: 'white',
     },
     button: {
@@ -133,6 +134,7 @@ const styles = StyleSheet.create({
       color: 'white', 
       textTransform: 'uppercase', 
       fontWeight: 500, 
-      textAlign: 'center'
+      textAlign: 'center',
+      fontFamily: 'Helvetica',
     },
 });

@@ -94,7 +94,7 @@ export default function WeatherScreen(){
     };
   }, []);
 
-  //create settings modal
+  
   //work on weatherhourdayview
   //create weatherbottomview
   if (weatherData!= null && (weatherData.current_weather.weathercode==51 || weatherData.current_weather.weathercode==53 || 
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
       color: 'white', 
       textTransform: 'uppercase', 
       fontWeight: 500, 
-      textAlign: 'center'
+      textAlign: 'center',
+      fontFamily: 'Helvetica',
   },
 });
