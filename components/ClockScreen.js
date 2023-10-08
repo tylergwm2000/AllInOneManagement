@@ -1,11 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Dimensions } from 'react-native';
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SplashScreen from 'expo-splash-screen';
 import LocationInput from './LocationInput';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
     const [modalVisibility, setModalVisibility] = useState(false);
     const [timezones, setTimeZone] = useState([]);
+    const [loading, setLoading] = useState(true);
      
     function openModal(){
       setModalVisibility(true);
@@ -65,14 +70,43 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
     ]);
     }
     
+    async function saveValue(value){
+      try {
+        await AsyncStorage.setItem("TIME", JSON.stringify(value),
+        () => { //CALLBACK when the value 
+          AsyncStorage.mergeItem("TIME", JSON.stringify(value));
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    async function getValue(){
+      var savedTimes = JSON.parse(await AsyncStorage.getItem("TIME"));
+      //console.log(savedTimes);
+      if (savedTimes) {
+        for (let i=0; i<savedTimes.length; i++){
+          setTimeZone(currentTimeZones => [...currentTimeZones, {location: savedTimes[i].location, time: savedTimes[i].time, timezoneData: savedTimes[i].timezoneData}]);
+        }
+      }
+    }
+
     useEffect(() => {
       let interval = setInterval(() => {
         setTimeZone(currentTimeZones => currentTimeZones.map(timezone => ({location: timezone.location, time: getTime(timezone.timezoneData), timezoneData: timezone.timezoneData}))); 
       }, 1000);
+      if (loading)
+        getValue();
+      setLoading(false);
+      SplashScreen.hideAsync();
       return () => {
         clearInterval(interval);
       };
     }, []);
+
+    useEffect(() => {
+      saveValue(timezones);
+    }, [timezones]);
 
     return (
         <>

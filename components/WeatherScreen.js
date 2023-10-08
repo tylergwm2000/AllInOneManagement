@@ -1,9 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { View, Pressable, Text, StyleSheet, ScrollView, ImageBackground, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SplashScreen from 'expo-splash-screen';
 import LocationInput from './LocationInput';
 import WeatherTopView from './WeatherTopView';
 import WeatherSettings from './WeatherSettings';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function WeatherScreen(){
   const [locationInputVisibility, setModalVisibility] = useState(false);
@@ -13,6 +17,7 @@ export default function WeatherScreen(){
   const [city, setCity] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [timeOfDay, setTimeOfDay] = useState('morning');
+  const [loading, setLoading] = useState(true);
 
   function openModal(){
     setModalVisibility(true);
@@ -80,15 +85,40 @@ export default function WeatherScreen(){
     }
   }
 
+  async function saveValue(value){
+    try {
+      await AsyncStorage.setItem("WEATHER", JSON.stringify(value),
+      () => { //CALLBACK when the value 
+        AsyncStorage.mergeItem("WEATHER", JSON.stringify(value));
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function getValue(){
+    var savedLocation = JSON.parse(await AsyncStorage.getItem("WEATHER"));
+    //console.log(savedTasks);
+    if (savedLocation) {
+      setLocation(savedLocation);
+    }
+  }
+
   useEffect(() => {
-    if (location != null)
+    if (location != null){
       getWeatherData(location);
+      saveValue(location);
+    }
   }, [location]);
 
   useEffect(() => {
     let interval = setInterval(() => {
       getWeatherData(location); 
     }, 3600000);
+    if (loading)
+        getValue();
+    setLoading(false);
+    SplashScreen.hideAsync();
     return () => {
       clearInterval(interval);
     };

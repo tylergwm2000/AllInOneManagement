@@ -1,12 +1,17 @@
 import { Alert, View, Pressable, Text, FlatList, StyleSheet } from "react-native";
 import { StatusBar } from 'expo-status-bar';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SplashScreen from 'expo-splash-screen';
 import TaskInput from './TaskInput';
 import TaskItem from './TaskItem';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function TaskScreen(){
     const [modalVisibility, setModalVisibility] = useState(false);
     const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     function openModal(){
         setModalVisibility(true);
@@ -17,7 +22,7 @@ export default function TaskScreen(){
     }
 
     function addTaskHandler(enteredTaskText){
-        setTasks(currentTasks => [...currentTasks, {text: enteredTaskText, id: Math.random().toString()}]);
+        setTasks(currentTasks => [...currentTasks, {text: enteredTaskText, id: Math.random().toString()}]);//add date so we can change view of tasks for calendar, week, day?
         closeModal();
     }
 
@@ -30,7 +35,38 @@ export default function TaskScreen(){
         ]);
     }
     
-    
+    async function saveValue(value){
+        try {
+            await AsyncStorage.setItem("TASKS", JSON.stringify(value),
+            () => { //CALLBACK when the value 
+                AsyncStorage.mergeItem("TASKS", JSON.stringify(value));
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async function getValue(){
+        var savedTasks = JSON.parse(await AsyncStorage.getItem("TASKS"));
+        //console.log(savedTasks);
+        if (savedTasks) {
+            for (let i=0; i<savedTasks.length; i++){
+                setTasks(currentTasks => [...currentTasks, {text: savedTasks[i].text, id: savedTasks[i].id}]);
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (loading)
+            getValue();
+        setLoading(false);
+        SplashScreen.hideAsync();
+    }, []);
+
+    useEffect(() => {
+        saveValue(tasks);
+    }, [tasks]);
+
     return (
         <>
             <StatusBar style='inverted'/>

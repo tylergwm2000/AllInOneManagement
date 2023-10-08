@@ -20,6 +20,7 @@ const [fontsloaded] = useFonts({'Helvetica': require('./assets/fonts/Helvetica.t
 'Helvetica-BoldOblique': require('./assets/fonts/Helvetica-BoldOblique.ttf'), 'Helvetica-Compressed': require('./assets/fonts/helvetica-compressed.otf'),
 'Helvetica-Light': require('./assets/fonts/helvetica-light.ttf'), 'Helvetica-Oblique': require('./assets/fonts/Helvetica-Oblique.ttf'),
 'Helvetica-Rounded-Bold': require('./assets/fonts/helvetica-rounded-bold.otf'),});
+if (fontsloaded)
   return (
     <NavigationContainer>
       {/* <Stack.Navigator initialRouteName='Home'>
