@@ -9,13 +9,14 @@ import WeatherSettings from './WeatherSettings';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function WeatherScreen(){
+export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREATE WeatherBottomView, ADD LOCAL WEATHER
   const [locationInputVisibility, setModalVisibility] = useState(false);
   const [settingsVisibility, setSettingsVisibility] = useState(false);
   const [location, setLocation] = useState(null);
   const [locationPermission, setLocationPermission] = useState(false);
   const [city, setCity] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [weatherUnits, setWeatherUnits] = useState(null);
   const [timeOfDay, setTimeOfDay] = useState('morning');
   const [loading, setLoading] = useState(true);
 
@@ -35,19 +36,27 @@ export default function WeatherScreen(){
     setSettingsVisibility(false);
   }
 
-  async function getWeatherData(location, units){
+  async function getWeatherData(location, units = weatherUnits){//add loading screen?
     setModalVisibility(false);
     setSettingsVisibility(false);	
     setLocation(location);
-    setLocationPermission(true);
+    if (locationPermission != true){
+      setLocationPermission(true);
+    }
     setCity(location[0]);
     lat = location[1];
     lon = location[2];
     var timezone = await getTimezone(lat, lon);
     if (typeof(units) != 'undefined'){
       var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&temperature_unit='+units['temp']+'&windspeed_unit='+units['wind']+'&precipitation_unit='+units['rain']+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+      setWeatherUnits(units);
     } else {
       var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+      units = [];
+      units['temp'] = 'celsius';
+      units['wind'] = 'kmh';
+      units['rain'] = 'mm';
+      setWeatherUnits(units);
     }
     var response = await fetch(url);
     var data = await response.json();
@@ -85,12 +94,18 @@ export default function WeatherScreen(){
     }
   }
 
-  async function saveValue(value){
+  async function saveValue(value, units){
     try {
       await AsyncStorage.setItem("WEATHER", JSON.stringify(value),
-      () => { //CALLBACK when the value 
+      () => { //CALLBACK when value already set 
         AsyncStorage.mergeItem("WEATHER", JSON.stringify(value));
       });
+      if (typeof(units) != 'undefined'){
+        await AsyncStorage.setItem("WEATHERUNIT", JSON.stringify(units),
+        () => { //CALLBACK when value already set 
+          AsyncStorage.mergeItem("WEATHERUNIT", JSON.stringify(units));
+        });
+      }
     } catch (e) {
       console.log(e);
     }
@@ -98,18 +113,32 @@ export default function WeatherScreen(){
 
   async function getValue(){
     var savedLocation = JSON.parse(await AsyncStorage.getItem("WEATHER"));
-    //console.log(savedTasks);
+    var savedUnits = JSON.parse(await AsyncStorage.getItem("WEATHERUNIT"));
+    //console.log(savedUnits);
     if (savedLocation) {
-      setLocation(savedLocation);
+      await setLocation(savedLocation);
+    }
+    if (savedUnits) {
+      await setWeatherUnits(savedUnits);
     }
   }
 
   useEffect(() => {
     if (location != null){
-      getWeatherData(location);
-      saveValue(location);
+      saveValue(location, weatherUnits);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (weatherUnits != null){
+      //console.log(weatherUnits);
+      saveValue(location, weatherUnits);
+      if (loading){
+        getWeatherData(location, weatherUnits);
+        setLoading(false);
+      }
+    }
+  }, [weatherUnits]);
 
   useEffect(() => {
     let interval = setInterval(() => {
@@ -117,7 +146,7 @@ export default function WeatherScreen(){
     }, 3600000);
     if (loading)
         getValue();
-    setLoading(false);
+    //setLoading(false);
     SplashScreen.hideAsync();
     return () => {
       clearInterval(interval);

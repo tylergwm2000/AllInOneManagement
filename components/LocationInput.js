@@ -1,7 +1,7 @@
 import { StyleSheet, Modal, View, Image, TextInput, Alert, Pressable, Text } from "react-native";
 import { useState } from "react";
 
-export default function LocationInput(props){ 
+export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OPTIONS FOR NEXT TIME
     const [enteredCity, setCity] = useState('');
     var location = [];
 

@@ -2,7 +2,7 @@ import { StyleSheet, Modal, View, Text, Pressable, Dimensions, ImageBackground, 
 import { useState, useCallback } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 
-export default function WeatherSettings(props) {
+export default function WeatherSettings(props) {//TODO MAKE THIS LOOK BETTER
     const [temperatureOpen, setTemperatureOpen] = useState(false);
     const [temperatureUnitValue, setTemperatureUnitValue] = useState(null);
     const [temperatureUnit, setTemperatureUnit] = useState([

@@ -7,7 +7,7 @@ import LocationInput from './LocationInput';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
+export default function ClockScreen(){ //TODO ADD LOCAL TIME AND WORK ON MAKING TIMEZONES LOOK BETTER
     const [modalVisibility, setModalVisibility] = useState(false);
     const [timezones, setTimeZone] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +20,8 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
       setModalVisibility(false);
     }
 
-    async function addTimeZone(city){ 
+    async function addTimeZone(city){ //add loading screen?
+      setModalVisibility(false);
       var added = false;
       for (let i=0; i<timezones.length; i++){
         if (timezones[i].location == city[0]){
@@ -33,7 +34,6 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
         var timezone = await getTimezone(city[1], city[2]);
         setTimeZone(currentTimeZones => [...currentTimeZones, {location: city[0], time: getTime(timezone), timezoneData: timezone}]);
       }
-      setModalVisibility(false);
     }
 
     async function getTimezone(latitude, longitude){
@@ -62,7 +62,7 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
     }
 
     function deleteTimezone(location){
-      Alert.alert('Confirm the Deletion', 'Are you sure about removing this location?', [
+      Alert.alert('DELETE?', 'Are you sure about removing this timezone?', [
         {text: 'Yes', onPress: () => setTimeZone(currentTimeZones => {
         return currentTimeZones.filter((timezone) => timezone.location !== location);
         }), style: 'default'},
@@ -73,7 +73,7 @@ export default function ClockScreen(){ //ADD LOCAL TIME AND LOCAL WEATHER
     async function saveValue(value){
       try {
         await AsyncStorage.setItem("TIME", JSON.stringify(value),
-        () => { //CALLBACK when the value 
+        () => { //CALLBACK when value already set 
           AsyncStorage.mergeItem("TIME", JSON.stringify(value));
         });
       } catch (e) {

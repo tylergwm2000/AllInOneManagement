@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Tab1 = createMaterialBottomTabNavigator();
 
-export default function App() { //TODO FIX UGLY WHITE BUBBLE AROUND NAVIGATOR
+export default function App() { //TODO FIX UGLY WHITE BUBBLE AROUND NAVIGATOR OR CHANGE NAVIGATOR
 const [fontsloaded] = useFonts({'Helvetica': require('./assets/fonts/Helvetica.ttf'), 'Helvetica-Bold': require('./assets/fonts/Helvetica-Bold.ttf'),
 'Helvetica-BoldOblique': require('./assets/fonts/Helvetica-BoldOblique.ttf'), 'Helvetica-Compressed': require('./assets/fonts/helvetica-compressed.otf'),
 'Helvetica-Light': require('./assets/fonts/helvetica-light.ttf'), 'Helvetica-Oblique': require('./assets/fonts/Helvetica-Oblique.ttf'),

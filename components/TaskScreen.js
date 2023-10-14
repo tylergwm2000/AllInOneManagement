@@ -8,7 +8,7 @@ import TaskItem from './TaskItem';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TaskScreen(){
+export default function TaskScreen(){//TODO ADD DATES SO WE CAN IMPLEMENT CALENDAR OR WEEK OR DAY VIEWS
     const [modalVisibility, setModalVisibility] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function TaskScreen(){
     async function saveValue(value){
         try {
             await AsyncStorage.setItem("TASKS", JSON.stringify(value),
-            () => { //CALLBACK when the value 
+            () => { //CALLBACK when value already set 
                 AsyncStorage.mergeItem("TASKS", JSON.stringify(value));
             });
         } catch (e) {
