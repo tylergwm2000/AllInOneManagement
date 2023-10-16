@@ -64,6 +64,7 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME AND WORK ON MAKING 
     function deleteTimezone(location){
       Alert.alert('DELETE?', 'Are you sure about removing this timezone?', [
         {text: 'Yes', onPress: () => setTimeZone(currentTimeZones => {
+          saveValue([]);
         return currentTimeZones.filter((timezone) => timezone.location !== location);
         }), style: 'default'},
         {text: 'No', style: 'cancel'}
@@ -71,11 +72,26 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME AND WORK ON MAKING 
     }
     
     async function saveValue(value){
+      var savedTimes = JSON.parse(await AsyncStorage.getItem("TIME"));
+      var saveValue = JSON.parse(JSON.stringify(value));
+      var bool = true;
+      if (savedTimes.length == saveValue.length){
+        for (let i = 0; i < savedTimes.length; i++) {
+          if (savedTimes[i].location != saveValue[i].location){
+            bool = false;
+            break;
+          }
+        }
+      } else {
+        bool = false;
+      }
       try {
-        await AsyncStorage.setItem("TIME", JSON.stringify(value),
-        () => { //CALLBACK when value already set 
+        if (bool == false){
+          await AsyncStorage.setItem("TIME", JSON.stringify(value),
+          () => { //CALLBACK when value already set 
           AsyncStorage.mergeItem("TIME", JSON.stringify(value));
-        });
+          });
+        }
       } catch (e) {
         console.log(e);
       }
