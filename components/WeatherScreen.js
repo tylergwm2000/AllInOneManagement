@@ -16,7 +16,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
   const [locationPermission, setLocationPermission] = useState(false);
   const [city, setCity] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
-  const [weatherUnits, setWeatherUnits] = useState(null);
+  const [weatherUnits, setWeatherUnits] = useState();
   const [timeOfDay, setTimeOfDay] = useState('morning');
   const [loading, setLoading] = useState(true);
 
@@ -47,12 +47,11 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     lat = location[1];
     lon = location[2];
     var timezone = await getTimezone(lat, lon);
-    if (typeof(units) != 'undefined'){
+    if (units['temp'] != undefined){
       var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&temperature_unit='+units['temp']+'&windspeed_unit='+units['wind']+'&precipitation_unit='+units['rain']+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
       setWeatherUnits(units);
     } else {
       var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
-      units = [];
       units['temp'] = 'celsius';
       units['wind'] = 'kmh';
       units['rain'] = 'mm';
@@ -100,7 +99,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       () => { //CALLBACK when value already set 
         AsyncStorage.mergeItem("WEATHER", JSON.stringify(value));
       });
-      if (typeof(units) != 'undefined'){
+      if (units != undefined){
         await AsyncStorage.setItem("WEATHERUNIT", JSON.stringify(units),
         () => { //CALLBACK when value already set 
           AsyncStorage.mergeItem("WEATHERUNIT", JSON.stringify(units));
@@ -130,8 +129,8 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
   }, [location]);
 
   useEffect(() => {
-    if (weatherUnits != null){
-      //console.log(weatherUnits);
+    if (weatherUnits != undefined){
+      console.log(weatherUnits);
       saveValue(location, weatherUnits);
       if (loading){
         getWeatherData(location, weatherUnits);
@@ -153,7 +152,10 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     };
   }, []);
 
-  
+  function reset(){
+    saveValue([], []);
+  }
+
   //work on weatherhourdayview
   //create weatherbottomview
   if (weatherData!= null && (weatherData.current_weather.weathercode==51 || weatherData.current_weather.weathercode==53 || 

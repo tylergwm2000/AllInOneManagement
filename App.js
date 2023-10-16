@@ -31,10 +31,10 @@ if (fontsloaded)
         <Tab.Screen name='Home' component={HomeScreen}/>
         <Tab.Screen name='Goals' component={GoalScreen}/>
       </Tab.Navigator> */}
-      <Tab1.Navigator initialRouteName='Tasks' activeColor='#ffffff' barStyle={{ backgroundColor: '#8862f0' }}> 
-        <Tab1.Screen name='Tasks' component={TaskScreen} options={{tabBarLabel:'TASKS', tabBarIcon: () => (<Ionicons name='list' color='#ffffff' size={26}/>),}}/>
-        <Tab1.Screen name='Clock' component={ClockScreen} options={{tabBarLabel:'CLOCK', tabBarIcon: () => (<Ionicons name='alarm' color='#ffffff' size={26}/>),}}/>
-        <Tab1.Screen name='Weather' component={WeatherScreen} options={{tabBarLabel:'WEATHER', tabBarIcon: () => (<Ionicons name='cloud' color='#ffffff' size={26}/>),}}/>
+      <Tab1.Navigator initialRouteName='Tasks' activeColor='#ff0000' inactiveColor='#ffffff' barStyle={{ backgroundColor: '#8862f0' }}> 
+        <Tab1.Screen name='Tasks' component={TaskScreen} options={{tabBarLabel:'TASKS', tabBarIcon: ({color}) => (<Ionicons name='list' color={color} size={26}/>),}}/>
+        <Tab1.Screen name='Clock' component={ClockScreen} options={{tabBarLabel:'CLOCK', tabBarIcon: ({color}) => (<Ionicons name='alarm' color={color} size={26}/>),}}/>
+        <Tab1.Screen name='Weather' component={WeatherScreen} options={{tabBarLabel:'WEATHER', tabBarIcon: ({color}) => (<Ionicons name='cloud' color={color} size={26}/>),}}/>
       </Tab1.Navigator>
     </NavigationContainer> 
   ); 
