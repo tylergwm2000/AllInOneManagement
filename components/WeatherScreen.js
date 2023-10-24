@@ -47,15 +47,12 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     lat = location[1];
     lon = location[2];
     var timezone = await getTimezone(lat, lon);
-    if (units['temp'] != undefined){
-      var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&temperature_unit='+units['temp']+'&windspeed_unit='+units['wind']+'&precipitation_unit='+units['rain']+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
+    if (units != undefined){
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&temperature_unit='+units.temp+'&windspeed_unit='+units.wind+'&precipitation_unit='+units.rain+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
       setWeatherUnits(units);
     } else {
       var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&timezone='+timezone+'&hourly=temperature_2m,relativehumidity_2m,apparent_temperature,precipitation_probability,precipitation,weathercode,visibility,windspeed_10m,winddirection_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&current_weather=true'; 
-      units['temp'] = 'celsius';
-      units['wind'] = 'kmh';
-      units['rain'] = 'mm';
-      setWeatherUnits(units);
+      setWeatherUnits({temp: 'celsius', wind: 'kmh', rain: 'mm'});
     }
     var response = await fetch(url);
     var data = await response.json();
@@ -93,68 +90,97 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     }
   }
 
-  async function saveValue(value, units){
-    try {
-      await AsyncStorage.setItem("WEATHER", JSON.stringify(value),
-      () => { //CALLBACK when value already set 
-        AsyncStorage.mergeItem("WEATHER", JSON.stringify(value));
-      });
-      if (units != undefined){
-        await AsyncStorage.setItem("WEATHERUNIT", JSON.stringify(units),
+  async function saveValue(value, units){//does this work?
+    //console.log('Location: '+value);
+    //console.log('Units: '+units);
+    var savedWeather = JSON.parse(await AsyncStorage.getItem('WEATHER'));
+    var savedUnit = JSON.parse(await AsyncStorage.getItem('WEATHERUNIT'));
+    if (savedWeather){
+      var savedCity = savedWeather.city;
+      //console.log('Saved Location: '+ savedWeather.city+','+ savedWeather.lat+','+ savedWeather.lon);
+    }
+    if (savedCity !== value[0]){
+      var weather = {
+        city: value[0],
+        lat: value[1],
+        lon: value[2],
+      };
+      try {
+        await AsyncStorage.setItem("WEATHER", JSON.stringify(weather),
         () => { //CALLBACK when value already set 
-          AsyncStorage.mergeItem("WEATHERUNIT", JSON.stringify(units));
+        AsyncStorage.mergeItem("WEATHER", JSON.stringify(weather));
         });
+      } catch (e) {
+        console.log(e);
       }
-    } catch (e) {
-      console.log(e);
+    }
+    if (units != undefined){
+      var weatherUnit = {
+        temp: units.temp,
+        wind: units.wind,
+        rain: units.rain,
+      };
+      if (savedUnit !== weatherUnit){ //TODO: FIGURE OUT HOW TO SAVE CHANGED SETTINGS AND NOT HAVE IT CHANGE BACK
+        //console.log('test');
+        //console.log(savedUnit);
+        //console.log(weatherUnit);
+        try {
+          await AsyncStorage.setItem("WEATHERUNIT", JSON.stringify(weatherUnit),
+          () => { //CALLBACK when value already set 
+          AsyncStorage.mergeItem("WEATHERUNIT", JSON.stringify(weatherUnit));
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      }
     }
   }
 
   async function getValue(){
-    var savedLocation = JSON.parse(await AsyncStorage.getItem("WEATHER"));
-    var savedUnits = JSON.parse(await AsyncStorage.getItem("WEATHERUNIT"));
+    var savedWeather = JSON.parse(await AsyncStorage.getItem("WEATHER"));
+    var savedUnit = JSON.parse(await AsyncStorage.getItem("WEATHERUNIT"));
     //console.log(savedUnits);
-    if (savedLocation) {
+    if (savedWeather) {
+      var savedLocation = [savedWeather.city, savedWeather.lat, savedWeather.lon];
       await setLocation(savedLocation);
     }
-    if (savedUnits) {
-      await setWeatherUnits(savedUnits);
+    if (savedUnit) {
+      await setWeatherUnits(savedUnit);
     }
   }
 
-  useEffect(() => {
-    if (location != null){
-      saveValue(location, weatherUnits);
-    }
-  }, [location]);
+  async function reset() {
+    console.log(await AsyncStorage.getAllKeys());
+    await AsyncStorage.removeItem('WEATHER');
+    await AsyncStorage.removeItem('WEATHERUNIT');
+    console.log(await AsyncStorage.getAllKeys());
+  }
+
+  async function readStorage() {
+    console.log('Location:'+await AsyncStorage.getItem('WEATHER'));
+    console.log('Units:'+await AsyncStorage.getItem('WEATHERUNIT'));
+  }
 
   useEffect(() => {
-    if (weatherUnits != undefined){
-      console.log(weatherUnits);
+    if (loading && location != null && weatherUnits != undefined) {
+      getWeatherData(location, weatherUnits);
+      setLoading(false);
+    }else if (weatherUnits != undefined || location != null && !loading){
       saveValue(location, weatherUnits);
-      if (loading){
-        getWeatherData(location, weatherUnits);
-        setLoading(false);
-      }
     }
-  }, [weatherUnits]);
+  }, [weatherUnits, location]);
 
   useEffect(() => {
     let interval = setInterval(() => {
       getWeatherData(location); 
     }, 3600000);
     if (loading)
-        getValue();
-    //setLoading(false);
+      getValue();
     SplashScreen.hideAsync();
     return () => {
       clearInterval(interval);
     };
   }, []);
-
-  function reset(){
-    saveValue([], []);
-  }
 
   //work on weatherhourdayview
   //create weatherbottomview

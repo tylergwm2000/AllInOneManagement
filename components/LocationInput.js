@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#1e085a', 
+        backgroundColor: '#311b6b', 
     },
     button: {
         width: 100,
