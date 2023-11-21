@@ -44,7 +44,11 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME
       //console.log(data);
       if (data.timeZone != null){
         result[0] = data.timeZone;
-        result[1] = data.currentUtcOffset.seconds;
+        result[1] = data.standardUtcOffset.seconds;
+        if (data.hasDayLightSavings == true && data.isDayLightSavingActive == true)
+          result[2] = data.dstInterval.dstOffsetToStandardTime.seconds;
+        else
+          result[2] = 0;
         return result;
       }
       else {
@@ -56,14 +60,14 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME
     function getDate(timezoneData){
       var curr = new Date();
       var timestamp = curr.getTime()/1000 + curr.getTimezoneOffset() * 60; //Current UTC date expressed as seconds
-      var offsets = timezoneData[1] * 1000; //get DST and timezone offset in milliseconds
+      var offsets = timezoneData[1] * 1000 + timezoneData[2] * 1000; //get DST and timezone offset in milliseconds
       var localdate = new Date(timestamp * 1000 + offsets);
       return localdate;
       //return localdate.toLocaleString('en', {timezone: timezoneData[0]});
     }
 
     function getTime(date){
-      return date.toLocaleTimeString('en');
+      return date.toLocaleTimeString('en', {hour: '2-digit', minute:'2-digit'});
     }
 
     function getDay(date){
