@@ -5,12 +5,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
 import TaskInput from './TaskInput';
 import TaskItem from './TaskItem';
+import TaskEdit from "./TaskEdit";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TaskScreen(){//TODO ADD DATES SO WE CAN IMPLEMENT CALENDAR OR WEEK OR DAY VIEWS
+export default function TaskScreen(){//TODO CALENDAR OR WEEK OR DAY VIEWS?, EDIT TASKS, NOTIFICATIONS FOR DEADLINES
     const [modalVisibility, setModalVisibility] = useState(false);
+    const [editorVisibility, setEditorVisibility] = useState(false);
     const [tasks, setTasks] = useState([]);
+    const [taskIDClicked, setTaskID] = useState(0);
+    const [taskTextClicked, setTaskText] = useState('');
+    const [taskDateClicked, setTaskDate] = useState('Date');
+    const [taskTimeClicked, setTaskTime] = useState('Time');
     const [loading, setLoading] = useState(true);
 
     function openModal(){
@@ -21,18 +27,32 @@ export default function TaskScreen(){//TODO ADD DATES SO WE CAN IMPLEMENT CALEND
         setModalVisibility(false);
     }
 
+    function openEditor(){
+        setEditorVisibility(true);
+    }
+
+    function closeEditor(){
+        setEditorVisibility(false);
+    }
+
     function addTaskHandler(enteredTaskText, enteredDate=null, enteredTime=null){
         setTasks(currentTasks => [...currentTasks, {text: enteredTaskText, id: Math.random().toString(), date: enteredDate, time: enteredTime}]);//view of tasks for calendar, week, day?
         closeModal();
     }
 
     function deleteTaskHandler(id){
-        Alert.alert('Confirm the Deletion', 'Are you sure about deleting this goal?', [
-            {text: 'Yes', onPress: () => setTasks(currentTasks => {
-            return currentTasks.filter((task) => task.id !== id);
-            })},
-            {text: 'No', style: 'cancel'}
-        ]);
+        setTasks(tasks.filter((task) => task.id !== id));
+        closeEditor();
+    }
+
+    function changeTaskHandler(id, enteredTaskText, enteredDate=null, enteredTime=null){
+        let index = tasks.findIndex((task => task.id == id));
+        let newTasks = [...tasks];
+        newTasks[index].text = enteredTaskText;
+        newTasks[index].date = enteredDate;
+        newTasks[index].time = enteredTime;
+        setTasks(newTasks);
+        closeEditor();
     }
     
     async function saveValue(value){
@@ -55,6 +75,15 @@ export default function TaskScreen(){//TODO ADD DATES SO WE CAN IMPLEMENT CALEND
                 console.log(e);
             }
         }
+    }
+
+    function clickTask(id){
+        let index = tasks.findIndex((task => task.id == id));
+        setTaskID(id);
+        setTaskText(tasks[index].text);
+        setTaskDate(tasks[index].date);
+        setTaskTime(tasks[index].time);
+        openEditor();
     }
 
     async function getValue(){
@@ -105,10 +134,12 @@ export default function TaskScreen(){//TODO ADD DATES SO WE CAN IMPLEMENT CALEND
                     <Text style={styles.buttonText}>Add New Task</Text>
                 </Pressable>
                 <TaskInput onAddTask={addTaskHandler} showModal={modalVisibility} onCancel={closeModal}/>
+                <TaskEdit onSaveTask={changeTaskHandler} onDeleteTask={deleteTaskHandler} tasktext={taskTextClicked} 
+                date={taskDateClicked} time={taskTimeClicked} id={taskIDClicked} showModal={editorVisibility} onCancel={closeEditor}/>
                 <View style={styles.tasksContainer}>
                     <Text style={styles.title}>List of tasks:</Text>
                     <FlatList data={tasks} renderItem={itemData => {
-                        return <TaskItem text={itemData.item.text} id={itemData.item.id} date={itemData.item.date} time={itemData.item.time} onDeleteItem={deleteTaskHandler}/>;
+                        return <TaskItem text={itemData.item.text} id={itemData.item.id} date={itemData.item.date} time={itemData.item.time} onClick={clickTask}/>;
                     }} 
                     keyExtractor={(item, index) => {
                         return item.id;

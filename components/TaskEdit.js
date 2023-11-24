@@ -1,11 +1,12 @@
 import { StyleSheet, View, TextInput, Pressable, Text, Alert, Modal, Image } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function TaskInput(props) {
+export default function TaskEdit(props) {
     const [enteredTaskText, setEnteredTaskText] = useState('');
     const [date, setDate] = useState('Date');
     const [time, setTime] = useState('Time');
+    const [id, setID] = useState(0);
     const [show, setShow] = useState(false);
     const [mode, setMode] = useState('date');
 
@@ -13,15 +14,22 @@ export default function TaskInput(props) {
       setEnteredTaskText(enteredText);
     }
 
-    function addTaskHandler() {
+    function saveTaskHandler() {
         if (enteredTaskText == ''){
-          Alert.alert('ERROR', 'No task entered!');
+          Alert.alert('ERROR', 'Task cannot be empty!');
         } else {
-          props.onAddTask(enteredTaskText, date, time); 
+          props.onSaveTask(id, enteredTaskText, date, time); 
           setEnteredTaskText('');
           setDate('Date');
           setTime('Time');
         }
+    }
+
+    function deleteTaskHandler() {
+        Alert.alert('Delete Task', 'Are you sure about deleting this task?', [
+            {text: 'Yes', onPress: () => props.onDeleteTask(id)},
+            {text: 'No', style: 'cancel'}
+        ]);
     }
 
     function changeDate() {
@@ -46,6 +54,15 @@ export default function TaskInput(props) {
         setTime(Time);
     }
 
+    useEffect(() => {
+      if (props.showModal == true){
+        setEnteredTaskText(props.tasktext);
+        {props.date != 'Date' ? setDate(new Date(props.date)) : setDate(props.date)}
+        {props.time != 'Time' ? setTime(new Date(props.time)) : setTime(props.time)}
+        setID(props.id);
+      }
+    }, [props.showModal]);
+
     return (
       <Modal visible={props.showModal} animationType="slide">
         <View style={styles.inputContainer}>
@@ -64,9 +81,13 @@ export default function TaskInput(props) {
           {show&&mode=='time'&&time!='Time' ? <DateTimePicker value={time} mode={mode} accentColor={'#b180f0'} onChange={onChangeTime}/> : null}
           {show&&mode=='time'&&time=='Time' ? <DateTimePicker value={new Date()} mode={mode} accentColor={'#b180f0'} onChange={onChangeTime}/> : null}
           <View style={styles.buttonContainer}>
-            <Pressable style={styles.button} onPress={addTaskHandler} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add</Text></Pressable>
+            <Pressable style={styles.button} onPress={saveTaskHandler} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Save</Text></Pressable>
             <Pressable style={styles.button1} onPress={props.onCancel} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Cancel</Text></Pressable>
           </View>
+          <Pressable style={styles.deleteButton} onPress={deleteTaskHandler}>
+            <Image source={require('../assets/images/delete.png')} style={styles.iconImage}/>
+            <Text style={[styles.buttonText, {fontSize: 12}]}>Delete</Text>
+          </Pressable>
         </View>
       </Modal>
     );
@@ -79,34 +100,42 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#311b6b', 
-      },
-      buttonContainer: {
+    },
+    buttonContainer: {
         flexDirection: 'row',
-      },
-      button: {
+    },
+    button: {
         width: 100,
         marginHorizontal: 8,
         justifyContent: 'center',
         backgroundColor: '#b180f0',
         borderRadius: 2,
         height: 35,
-      },
-      button1: {
+    },
+    button1: {
         width: 100,
         marginHorizontal: 8,
         justifyContent: 'center',
         backgroundColor: '#f31282',
         borderRadius: 2,
         height: 35,
-      },
-      buttonText: {
+    },
+    deleteButton: {
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 0.7,
+        position: 'absolute',
+        bottom: 0,
+    },
+    buttonText: {
         color: 'white', 
         textTransform: 'uppercase', 
         fontWeight: 500, 
         textAlign: 'center',
         fontFamily: 'Helvetica',
-      },
-      textInput: {
+    },
+    textInput: {
         borderWidth: 1,
         borderColor: '#e4d0ff',
         backgroundColor: '#e4d0ff',
@@ -115,10 +144,14 @@ const styles = StyleSheet.create({
         width: '85%',
         marginBottom: 12,
         padding: 16,
-      },
-      image: {
+    },
+    image: {
         width: 100,
         height: 100,
         margin: 20,
-      },
+    },
+    iconImage: {
+        width: 25,
+        height: 25,
+    },
 });

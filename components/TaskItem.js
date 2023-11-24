@@ -12,8 +12,8 @@ export default function TaskItem(props) {
       time = new Date(props.time);
     }
 
-    return(
-      <Pressable onPress={props.onDeleteItem.bind(this, props.id)} style={[({pressed}) => pressed && styles.pressedItem, styles.taskItem]} android_ripple={{color: '#210644'}}>
+    return(//edit onPress
+      <Pressable onPress={props.onClick.bind(this, props.id)} style={[({pressed}) => pressed && styles.pressedItem, styles.taskItem]} android_ripple={{color: '#210644'}}>
         <Text style={styles.taskText}>{props.text}</Text>
         <View style={{justifyContent: 'center'}}>
           {showDate ? <Text style={styles.datetimeText}>{date.toLocaleDateString('en', {month: 'short', day: 'numeric', year:'numeric'})}</Text> : null}
