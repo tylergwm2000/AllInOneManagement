@@ -1,12 +1,41 @@
-import { StyleSheet, Modal, View, Image, TextInput, Alert, Pressable, Text } from "react-native";
-import { useState } from "react";
+import { StyleSheet, Modal, View, Image, TextInput, Alert, Pressable, Text, ScrollView, TouchableWithoutFeedback} from "react-native";
+import { useState, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OPTIONS FOR NEXT TIME
     const [enteredCity, setCity] = useState('');
+    const [suggestionView, setSuggestionView] = useState(false);
+    const [locations, setLocations] = useState([]);
     var location = [];
 
     function cityInputHandler(enteredText){
         setCity(enteredText);
+        setSuggestionView(false);
+    }
+
+    async function getSuggestions(){
+        var savedSuggestions = JSON.parse(await AsyncStorage.getItem('LOCATIONS'));
+        var savedTimeLocations = JSON.parse(await AsyncStorage.getItem('TIMELOCATION'));
+        var savedWeatherLocation = JSON.parse(await AsyncStorage.getItem('WEATHER')).city;
+        var set = new Set(), suggestions;
+        if (savedSuggestions)
+            savedSuggestions.forEach(location => set.add(location));
+        if (savedTimeLocations)
+            savedTimeLocations.forEach(location => set.add(location)); 
+        if (savedWeatherLocation)
+            set.add(savedWeatherLocation);
+        suggestions = [...set];
+        setLocations(suggestions || []); // Clear and set locations
+    }
+
+    async function saveSuggestions(newSuggestion){
+        var savedLocations = locations;
+        savedLocations.push(newSuggestion);
+        try {
+            await AsyncStorage.setItem('LOCATIONS', JSON.stringify(savedLocations)); 
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     async function addLocation(){
@@ -22,6 +51,9 @@ export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OP
                 location[1] = data[0].lat;
                 location[2] = data[0].lon;
                 props.onAddCity(location);
+                if (locations.findIndex((location)=>location==enteredCity)==-1){
+                    saveSuggestions(enteredCity);
+                }
             } else {
                 Alert.alert('ERROR', 'Location entered not found!');
             }
@@ -29,11 +61,35 @@ export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OP
         }
     }
 
+    useEffect(() => {
+        if (props.showModal === true)
+            getSuggestions();
+    }, [props.showModal]);
+
     return (
         <Modal visible={props.showModal} animationType="slide">
             <View style={styles.inputContainer}>
                 <Image source={require('../assets/images/city.png')} style={styles.image}/>
-                <TextInput style={styles.textInput} placeholder="Enter a location here!" onChangeText={cityInputHandler} value={enteredCity}/>
+                <TextInput style={styles.textInput} placeholder="Enter a location here!" onChangeText={cityInputHandler} value={enteredCity} 
+                onFocus={() => {setSuggestionView(enteredCity.length <= 0)}} onBlur={() => {setSuggestionView(false)}}
+                />
+                {suggestionView && locations.length > 0 ? <ScrollView keyboardShouldPersistTaps='handled' style={{width: '85%'}}>{locations.map((location, index) => {
+                if (index % 2 === 0){
+                    var nextLocation = locations[index+1];
+                    return(
+                    <View key={index} style={styles.suggestionRow}>
+                        <Pressable onPress={() => {setCity(location); setSuggestionView(false)}} style={styles.suggestions}>
+                            <Text style={styles.buttonText}>{location}</Text>
+                        </Pressable>
+                        {nextLocation && 
+                        <Pressable onPress={() => {setCity(nextLocation); setSuggestionView(false)}} style={styles.suggestions}>
+                            <Text style={styles.buttonText}>{nextLocation}</Text>
+                        </Pressable>}
+                    </View>);
+                }
+                return null;
+                })}</ScrollView> : null}
+                
                 <View style={styles.buttonContainer}>
                     <Pressable style={styles.button} onPress={addLocation} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add</Text></Pressable>
                     <Pressable style={styles.button1} onPress={props.onCancel} android_ripple={{color: '#f31212'}}><Text style={styles.buttonText}>Cancel</Text></Pressable>
@@ -88,10 +144,24 @@ const styles = StyleSheet.create({
         width: '85%',
         marginBottom: 24,
         padding: 16,
-      },
+    },
     image: {
         width: 100,
         height: 100,
         margin: 20,
+    },
+    suggestions: {
+        borderColor: '#e4d0ff',
+        borderWidth: 1,
+        borderRadius: 6,
+        alignItems: 'center',
+        marginBottom: 5,
+        padding: 5,
+        width: 125,
+    },
+    suggestionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginHorizontal: 16,
     },
 });
