@@ -73,7 +73,7 @@ export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OP
                 <TextInput style={styles.textInput} placeholder="Enter a location here!" onChangeText={cityInputHandler} value={enteredCity} 
                 onFocus={() => {setSuggestionView(enteredCity.length <= 0)}} onBlur={() => {setSuggestionView(false)}}
                 />
-                {suggestionView && locations.length > 0 ? <ScrollView keyboardShouldPersistTaps='handled' style={{width: '85%'}}>{locations.map((location, index) => {
+                {suggestionView && locations.length > 0 ? <View style={{height: '25%', width: '85%'}}><ScrollView keyboardShouldPersistTaps='handled'>{locations.map((location, index) => {
                 if (index % 2 === 0){
                     var nextLocation = locations[index+1];
                     return(
@@ -88,7 +88,7 @@ export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OP
                     </View>);
                 }
                 return null;
-                })}</ScrollView> : null}
+                })}</ScrollView></View> : null}
                 
                 <View style={styles.buttonContainer}>
                     <Pressable style={styles.button} onPress={addLocation} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add</Text></Pressable>
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
+        marginTop: 20,
     },  
     textInput: {
         borderWidth: 1,
