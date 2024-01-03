@@ -1,11 +1,15 @@
-import { View, Text, StyleSheet, Image, Pressable, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import images from './WeatherImage';
 
 export default function WeatherTopView(props) {
     var currentTime = props.weatherData.current_weather.time;
     var weathercode = props.weatherData.current_weather.weathercode;
     var currentWeatherImage, fontStyle, forecast;
     var timeOfDay;
-    currentDate = new Date(currentTime);
+    var currentDate = new Date(currentTime);
+    var currentTemp = Math.round(props.weatherData.current_weather.temperature);
+    var highTemp = Math.round(props.weatherData.daily.temperature_2m_max[0]);
+    var lowTemp = Math.round(props.weatherData.daily.temperature_2m_min[0]);
     sunrise = new Date(props.weatherData.daily.sunrise[0]);
     sunset = new Date(props.weatherData.daily.sunset[0]);
     if (currentDate > sunrise && currentDate < sunset){
@@ -20,78 +24,70 @@ export default function WeatherTopView(props) {
             break;
         }
     }
+    fontStyle = timeOfDay === 'morning' && (weathercode == 0 || weathercode == 1 || weathercode == 2 || weathercode == 3) ? styles.dayFont : styles.nightFont;
     if (weathercode == 1 || weathercode == 2 || weathercode == 3){
         if (timeOfDay == 'morning'){
-            currentWeatherImage = <Image source={require('../assets/images/weathercode123.png')} style={styles.weatherImage}/>;
-            fontStyle = styles.dayFont;
+            currentWeatherImage = <Image source={images.weathercode.cloudyDay} style={styles.weatherImage}/>;
         } else {
-            currentWeatherImage = <Image source={require('../assets/images/weathercode123night.png')} style={styles.weatherImage}/>;
-            fontStyle = styles.nightFont;
+            currentWeatherImage = <Image source={images.weathercode.cloudyNight} style={styles.weatherImage}/>;
         }
         forecast='Cloudy';
     } else if (weathercode == 45 || weathercode == 48){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode45.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+        currentWeatherImage = <Image source={images.weathercode.fog} style={styles.weatherImage}/>;
         forecast='Foggy';
     } else if (weathercode == 51 || weathercode == 53 || weathercode == 55 || weathercode == 61 || weathercode == 63 || weathercode == 65 || weathercode == 80 || weathercode == 81 || weathercode == 82){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode51.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+        currentWeatherImage = <Image source={images.weathercode.rain} style={styles.weatherImage}/>;
         forecast='Raining';
     } else if (weathercode == 56 || weathercode == 57 || weathercode == 66 || weathercode == 67){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode56.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+        currentWeatherImage = <Image source={images.weathercode.freezingRain} style={styles.weatherImage}/>;
         forecast='Freezing Rain';
     } else if (weathercode == 71 || weathercode == 73 || weathercode == 75 || weathercode == 77 || weathercode == 85 || weathercode == 86){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode71.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+        currentWeatherImage = <Image source={images.weathercode.snow} style={styles.weatherImage}/>;
         forecast='Snow Fall';
     } else if (weathercode == 95 || weathercode == 96 || weathercode == 99){
-        currentWeatherImage = <Image source={require('../assets/images/weathercode95.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+        currentWeatherImage = <Image source={images.weathercode.thunder} style={styles.weatherImage}/>;
         forecast='Thunderstorm';
-    } else if (props.timeOfDay == 'night'){
-        currentWeatherImage = <Image source={require('../assets/images/weathercodenight.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.nightFont;
+    } else if (timeOfDay == 'night'){
+        currentWeatherImage = <Image source={images.weathercode.clearNight} style={styles.weatherImage}/>;
         forecast='Clear Night';
     } else {
-        currentWeatherImage = <Image source={require('../assets/images/weathercode0.png')} style={styles.weatherImage}/>;
-        fontStyle = styles.dayFont;
+        currentWeatherImage = <Image source={images.weathercode.clearDay} style={styles.weatherImage}/>;
         forecast='Clear Sky';
     }
     return (
         <View>
-            <View style={styles.iconTopBar}>
+            {/* <View style={styles.iconTopBar}> 
                 <Pressable onPress={props.changeLocation}> 
                     {fontStyle == styles.dayFont ? <Image source={require('../assets/images/cityIcon.png')} style={styles.iconImages}/> : <Image source={require('../assets/images/cityIconWhite.png')} style={styles.iconImages}/>}
                 </Pressable>
                 <Pressable onPress={props.showSettings}> 
                     {fontStyle == styles.dayFont ? <Image source={require('../assets/images/settings.png')} style={styles.iconImages}/> : <Image source={require('../assets/images/settingsWhite.png')} style={styles.iconImages}/>}
                 </Pressable>
-            </View>
+            </View>*/}
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Image source={require('../assets/images/location-pin.png')} style={styles.iconImages}/>
+                    <Image source={images.location} style={styles.iconImages}/>
                     <Text style={[styles.locationHeader, fontStyle]}>{props.cityName}</Text>
                 </View>
                 {currentWeatherImage}
                 <View style={styles.iconTopBar}>
                     <View style={styles.leftContainer}>
-                        <Text style={[styles.currentTemp, fontStyle]}>{props.weatherData.current_weather.temperature}{props.weatherData.daily_units.temperature_2m_max}</Text>
+                        <Text style={[styles.currentTemp, fontStyle]}>{currentTemp}{props.weatherData.daily_units.temperature_2m_max}</Text>
                         <Text style={[styles.forecastText, fontStyle]}>{forecast}</Text>
                         <View style={styles.header}>
-                            <Image source={require('../assets/images/highTemperature.png')} style={styles.iconImages}/>
-                            <Text style={[styles.otherStats, fontStyle]}>{props.weatherData.daily.temperature_2m_max[0]}{props.weatherData.daily_units.temperature_2m_max}</Text>
-                            <Image source={require('../assets/images/lowTemperature.png')} style={styles.iconImages}/>
-                            <Text style={[styles.otherStats, fontStyle]}>{props.weatherData.daily.temperature_2m_min[0]}{props.weatherData.daily_units.temperature_2m_min}</Text>
+                            <Image source={images.highTemperature} style={styles.iconImages}/>
+                            <Text style={[styles.otherStats, fontStyle]}>{highTemp}{props.weatherData.daily_units.temperature_2m_max}</Text>
+                            <Image source={images.lowTemperature} style={styles.iconImages}/>
+                            <Text style={[styles.otherStats, fontStyle]}>{lowTemp}{props.weatherData.daily_units.temperature_2m_min}</Text>
                         </View>
                     </View>
                     <View style={styles.rightContainer}>
                         <View style={styles.rainChanceRow}>
-                            <Image source={require('../assets/images/rainProbability.png')} style={styles.iconImages}/>
+                            <Image source={images.rainProbability} style={styles.iconImages}/>
                             <Text style={[styles.otherStats, fontStyle]}> Rain: {props.weatherData.hourly.precipitation_probability[hourlyIndex]}{props.weatherData.hourly_units.precipitation_probability}</Text>
                         </View>
                         <View style={styles.header}>
-                            <Image source={require('../assets/images/humidity.png')} style={styles.iconImages}/>
+                            <Image source={images.humidity} style={styles.iconImages}/>
                             <Text style={[styles.otherStats, fontStyle]}> Humidity: {props.weatherData.hourly.relativehumidity_2m[hourlyIndex]}{props.weatherData.hourly_units.relativehumidity_2m}</Text>
                         </View>
                     </View>
@@ -107,6 +103,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingTop: 25,
     },
     header: {
         flex: 1,

@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { View, Pressable, Text, StyleSheet, ScrollView, ImageBackground, Alert } from 'react-native';
+import { View, Pressable, Text, StyleSheet, ScrollView, ImageBackground, Alert, Dimensions, Image, RefreshControl } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+import images from './WeatherImage';
 import LocationInput from './LocationInput';
 import WeatherTopView from './WeatherTopView';
 import WeatherSettings from './WeatherSettings';
+import WeatherHourDayView from './WeatherHourDayView';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,6 +21,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
   const [weatherUnits, setWeatherUnits] = useState();
   const [timeOfDay, setTimeOfDay] = useState('morning');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   function openModal(){
     setModalVisibility(true);
@@ -36,7 +39,9 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     setSettingsVisibility(false);
   }
 
-  async function getWeatherData(location, units = weatherUnits){//add loading screen?
+  async function getWeatherData(location, units = weatherUnits){
+    //console.log('Location:'+location);
+    //console.log('Units:'+units);
     setModalVisibility(false);
     setSettingsVisibility(false);	
     setLocation(location);
@@ -73,7 +78,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       }
       //console.log(timeOfDay);
     }
-    
+    setRefreshing(false); 
   }
 
   async function getTimezone(latitude, longitude){
@@ -90,7 +95,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     }
   }
 
-  async function saveValue(value, units){//does this work?
+  async function saveValue(value, units){
     //console.log('Location: '+value);
     //console.log('Units: '+units);
     var savedWeather = JSON.parse(await AsyncStorage.getItem('WEATHER'));
@@ -120,10 +125,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
         wind: units.wind,
         rain: units.rain,
       };
-      if (savedUnit !== weatherUnit){ //TODO: FIGURE OUT HOW TO SAVE CHANGED SETTINGS AND NOT HAVE IT CHANGE BACK
-        //console.log('test');
-        //console.log(savedUnit);
-        //console.log(weatherUnit);
+      if (savedUnit !== weatherUnit){;
         try {
           await AsyncStorage.setItem("WEATHERUNIT", JSON.stringify(weatherUnit),
           () => { //CALLBACK when value already set 
@@ -142,21 +144,29 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
     //console.log(savedUnits);
     if (savedWeather) {
       var savedLocation = [savedWeather.city, savedWeather.lat, savedWeather.lon];
-      await setLocation(savedLocation);
+      setLocation(savedLocation);
     }
     if (savedUnit) {
-      await setWeatherUnits(savedUnit);
+      setWeatherUnits(savedUnit);
     }
+    setLoading(false);
   }
 
-  async function reset() {
+  function onRefresh(){
+    setRefreshing(true);
+    setTimeout(() => {
+      getWeatherData(location);
+    }, 5000);
+  }
+
+  async function reset() { //<Pressable onPress={reset} style={styles.button}><Text style={styles.buttonText}>Reset</Text></Pressable>
     console.log(await AsyncStorage.getAllKeys());
     await AsyncStorage.removeItem('WEATHER');
     await AsyncStorage.removeItem('WEATHERUNIT');
     console.log(await AsyncStorage.getAllKeys());
   }
 
-  async function readStorage() {
+  async function readStorage() { 
     console.log('Location:'+await AsyncStorage.getItem('WEATHER'));
     console.log('Units:'+await AsyncStorage.getItem('WEATHERUNIT'));
   }
@@ -164,98 +174,84 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
   useEffect(() => {
     if (loading && location != null && weatherUnits != undefined) {
       getWeatherData(location, weatherUnits);
-      setLoading(false);
-    }else if (weatherUnits != undefined || location != null && !loading){
+    } else if (weatherUnits != undefined || location != null && !loading){
       saveValue(location, weatherUnits);
     }
   }, [weatherUnits, location]);
 
   useEffect(() => {
-    let interval = setInterval(() => {
-      getWeatherData(location); 
-    }, 3600000);
-    if (loading)
+    if (loading){
       getValue();
-    SplashScreen.hideAsync();
-    return () => {
-      clearInterval(interval);
-    };
+      SplashScreen.hideAsync();
+    }
   }, []);
 
   //work on weatherhourdayview
   //create weatherbottomview
-  if (weatherData!= null && (weatherData.current_weather.weathercode==51 || weatherData.current_weather.weathercode==53 || 
-  weatherData.current_weather.weathercode==55 || weatherData.current_weather.weathercode==56 || weatherData.current_weather.weathercode==57 || 
-  weatherData.current_weather.weathercode==61 || weatherData.current_weather.weathercode==63 || weatherData.current_weather.weathercode==65 || 
-  weatherData.current_weather.weathercode==66 || weatherData.current_weather.weathercode==67 || weatherData.current_weather.weathercode==80 || 
-  weatherData.current_weather.weathercode==81 || weatherData.current_weather.weathercode==82 || weatherData.current_weather.weathercode==95 || 
-  weatherData.current_weather.weathercode==96 || weatherData.current_weather.weathercode==99)){
-    return(<>
-      <StatusBar style='inverted'/>
-      <ImageBackground source={require('../assets/images/rainBackground.gif')} resizeMode='cover' style={styles.image}>
-        <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
-          <View style={styles.listContainer}>
-            <ScrollView style={styles.list}>
-              <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/>
-            </ScrollView>
-          </View>
-          <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/>
-        </View>
-      </ImageBackground>
-    </>);
-  } else if (weatherData!=null && (weatherData.current_weather.weathercode==45 || weatherData.current_weather.weathercode==48)){
-    return(<>
-      <StatusBar style='inverted'/>
-      <ImageBackground source={require('../assets/images/foggyBackground.jpg')} resizeMode='cover' style={styles.image}>
-        <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
-          <View style={styles.listContainer}>
-            <ScrollView style={styles.list}>
-              <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/>
-            </ScrollView>
-          </View>
-          <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/>
-        </View>
-      </ImageBackground>
-    </>);
-  } else if (timeOfDay == 'morning'){ 
+  function renderWeatherView(){
+    var isRaining = weatherData && [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(weatherData.current_weather.weathercode);
+    var isFoggy = weatherData && [45, 48].includes(weatherData.current_weather.weathercode);
+    var isSnowing = weatherData && [71, 73, 75, 77, 85, 86].includes(weatherData.current_weather.weathercode);
+    if (isRaining){
+      return renderWeatherViewWithBackground('raining', 'white', 'white');
+    } else if (isFoggy){
+      return renderWeatherViewWithBackground('foggy', 'white', 'white');
+    } else if (isSnowing){//might need snowDay and snowNight 
+      return renderWeatherViewWithBackground('snow', 'white', 'white');
+    } else if (timeOfDay === 'morning'){
+      return renderWeatherViewWithBackground('day', 'black', 'black');
+    } else {
+      return renderWeatherViewWithBackground('night', 'white', 'white');
+    }
+  }
+
+  function renderWeatherViewWithBackground(backgroundImg, cityImg, settingsImg){
     return(
     <>
-      <StatusBar style='dark'/>
-      <ImageBackground source={require('../assets/images/weatherBackgroundDay.png')} resizeMode='cover' style={styles.image}>
+      <ImageBackground source={images.background[backgroundImg]} resizeMode='cover' style={styles.image}>
         <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
-          <View style={styles.listContainer}>
-            <ScrollView style={styles.list}>
-              {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
-            </ScrollView>
-          </View>
+          {locationPermission ? renderTopBar(cityImg, settingsImg) : renderLocationButton()}
+          {renderWeatherScrollView()}
           <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          {weatherData ? <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/> : null}
-        </View>
-      </ImageBackground>
-    </>); 
-  } else {
-    return(
-    <>
-      <StatusBar style='inverted'/>
-      <ImageBackground source={require('../assets/images/weatherBackgroundNight.jpg')} resizeMode='cover' style={styles.image}>
-        <View style={styles.weatherScreenContainer}>
-          {locationPermission ? null: <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}><Text style={styles.buttonText}>Add Location</Text></Pressable>}
-          <View style={styles.listContainer}>
-            <ScrollView style={styles.list}>
-              {weatherData ? <WeatherTopView weatherData={weatherData} timeOfDay={timeOfDay} cityName={city} changeLocation={openModal} showSettings={openSettings}/> : null}
-            </ScrollView>
-          </View>
-          <LocationInput showModal={locationInputVisibility} onCancel={closeModal} onAddCity={getWeatherData}/>
-          {weatherData ? <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onClose={closeSettings} onSave={getWeatherData} timeOfDay={timeOfDay} location={location}/> : null}
+          {weatherData ? <WeatherSettings showModal={settingsVisibility} weatherData={weatherData} onSave={getWeatherData} location={location} weaatherUnits={weatherUnits} visibility={settingsVisibility}/> : null}
         </View>
       </ImageBackground>
     </>);
   }
+
+  function renderTopBar(cityImg, settingsImg){
+    return(
+    <View style={styles.iconTopBar}>
+      <Pressable onPress={openModal}>
+        <Image source={images.cityIcon[cityImg]} style={styles.iconImages}/>
+      </Pressable>
+      <Pressable onPress={openSettings}>
+        <Image source={images.settings[settingsImg]} style={styles.iconImages}/>
+      </Pressable>
+    </View>);
+  }
+
+  function renderLocationButton(){
+    return(
+    <Pressable style={styles.button} onPress={openModal} android_ripple={{color: '#210644'}}>
+      <Text style={styles.buttonText}>Add Location</Text>
+    </Pressable>);
+  }
+
+  function renderWeatherScrollView(){
+    return(
+    <>
+      {weatherData && 
+      <View style={styles.listContainer}>
+        <ScrollView style={styles.list} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
+          {weatherData && <WeatherTopView weatherData={weatherData} cityName={city}/>}
+          {/*{weatherData && <WeatherHourDayView weatherData={weatherData} refreshing={refreshing}/>}*/}
+        </ScrollView>
+      </View>}
+    </>); 
+  }
+
+  return renderWeatherView();
 }
 
 const styles = StyleSheet.create({ 
@@ -288,5 +284,19 @@ const styles = StyleSheet.create({
       fontWeight: 500, 
       textAlign: 'center',
       fontFamily: 'Helvetica',
+  },
+  iconTopBar: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: Dimensions.get('screen').width-32,
+    position: 'absolute',
+    top: 65,
+    left: 16,
+    zIndex: 100,
+  },
+  iconImages: {
+    height: 35,
+    width: 35,
   },
 });
