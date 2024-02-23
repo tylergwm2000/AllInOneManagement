@@ -2,7 +2,7 @@
   "expo": {
     "name": "AIO Management",
     "slug": "AllInOneManagement",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,7 +20,8 @@
     },
     "android": {
       "package": "com.AIOManagement",
-      "versionCode": 6,
+      "permissions": [],
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
