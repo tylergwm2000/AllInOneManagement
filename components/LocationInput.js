@@ -2,7 +2,7 @@ import { StyleSheet, Modal, View, Image, TextInput, Alert, Pressable, Text, Scro
 import { useState, useEffect } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OPTIONS FOR NEXT TIME
+export default function LocationInput(props){ 
     const [enteredCity, setCity] = useState('');
     const [suggestionView, setSuggestionView] = useState(false);
     const [locations, setLocations] = useState([]);
@@ -16,14 +16,14 @@ export default function LocationInput(props){ //TODO ADD ENTERED LOCATIONS AS OP
     async function getSuggestions(){
         var savedSuggestions = JSON.parse(await AsyncStorage.getItem('LOCATIONS'));
         var savedTimeLocations = JSON.parse(await AsyncStorage.getItem('TIMELOCATION'));
-        var savedWeatherLocation = JSON.parse(await AsyncStorage.getItem('WEATHER')).city;
+        var savedWeatherLocation = JSON.parse(await AsyncStorage.getItem('WEATHER'));
         var set = new Set(), suggestions;
         if (savedSuggestions)
             savedSuggestions.forEach(location => set.add(location));
         if (savedTimeLocations)
             savedTimeLocations.forEach(location => set.add(location)); 
         if (savedWeatherLocation)
-            set.add(savedWeatherLocation);
+            set.add(savedWeatherLocation.city);
         suggestions = [...set];
         setLocations(suggestions || []); // Clear and set locations
     }
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white', 
         textTransform: 'uppercase', 
-        fontWeight: 500, 
+        fontWeight: '500', 
         textAlign: 'center',
         fontFamily: 'Helvetica',
     },

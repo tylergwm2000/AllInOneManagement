@@ -4,6 +4,7 @@ const images = {
         raining: require('../assets/images/rainBackground.gif'),
         day: require('../assets/images/weatherBackgroundDay.png'),
         night: require('../assets/images/weatherBackgroundNight.jpg'),
+        snow: require('../assets/images/snowBackground.gif'),
     },
     weathercode: {
         clearDay: require('../assets/images/weathercode0.png'),

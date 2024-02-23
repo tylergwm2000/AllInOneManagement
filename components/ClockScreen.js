@@ -20,7 +20,7 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME
       setModalVisibility(false);
     }
 
-    async function addTimeZone(city){ //add loading screen?
+    async function addTimeZone(city){ //TODO add loading screen?
       setModalVisibility(false);
       var added = false;
       for (let i=0; i<timezones.length; i++){
@@ -121,6 +121,8 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME
       //console.log('Timezone: '+ savedTimezones);
       if (savedLocations) {
         for (let i=0; i<savedLocations.length; i++){
+          if (savedTimes[i] == null)
+            continue;
           setTimeZone(currentTimeZones => [...currentTimeZones, {location: savedLocations[i], date: savedDates[i], 
             time: savedTimes[i], day: savedDays[i], timezoneData: savedTimezones[i]}]);
         }
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
     buttonText: {
       color: 'white', 
       textTransform: 'uppercase', 
-      fontWeight: 500, 
+      fontWeight: '500', 
       textAlign: 'center',
       fontFamily: 'Helvetica',
     },

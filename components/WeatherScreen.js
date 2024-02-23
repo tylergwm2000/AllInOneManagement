@@ -67,6 +67,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       setLocationPermission(false);
     } else {
       setWeatherData(data);
+      setRefreshing(true); 
       currentDate = new Date(data.current_weather.time);
       sunrise = new Date(data.daily.sunrise[0]);
       sunset = new Date(data.daily.sunset[0]);
@@ -196,7 +197,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       return renderWeatherViewWithBackground('raining', 'white', 'white');
     } else if (isFoggy){
       return renderWeatherViewWithBackground('foggy', 'white', 'white');
-    } else if (isSnowing){//might need snowDay and snowNight 
+    } else if (isSnowing){
       return renderWeatherViewWithBackground('snow', 'white', 'white');
     } else if (timeOfDay === 'morning'){
       return renderWeatherViewWithBackground('day', 'black', 'black');
@@ -245,7 +246,7 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       <View style={styles.listContainer}>
         <ScrollView style={styles.list} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
           {weatherData && <WeatherTopView weatherData={weatherData} cityName={city}/>}
-          {/*{weatherData && <WeatherHourDayView weatherData={weatherData} refreshing={refreshing}/>}*/}
+          {weatherData && <WeatherHourDayView weatherData={weatherData} refreshing={refreshing}/>}
         </ScrollView>
       </View>}
     </>); 
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
   buttonText: {
       color: 'white', 
       textTransform: 'uppercase', 
-      fontWeight: 500, 
+      fontWeight: '500', 
       textAlign: 'center',
       fontFamily: 'Helvetica',
   },

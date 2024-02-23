@@ -9,7 +9,7 @@ import TaskEdit from "./TaskEdit";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TaskScreen(){//TODO CALENDAR OR WEEK OR DAY VIEWS?, EDIT TASKS, NOTIFICATIONS FOR DEADLINES
+export default function TaskScreen(){//TODO CALENDAR OR WEEK OR DAY VIEWS?, NOTIFICATIONS FOR DEADLINES
     const [modalVisibility, setModalVisibility] = useState(false);
     const [editorVisibility, setEditorVisibility] = useState(false);
     const [tasks, setTasks] = useState([]);
@@ -94,6 +94,8 @@ export default function TaskScreen(){//TODO CALENDAR OR WEEK OR DAY VIEWS?, EDIT
         //console.log(savedTasks);
         if (savedID) {
             for (let i=0; i<savedID.length; i++){
+                if (savedDate[i] == null && savedTime[i] == null)
+                    continue;
                 setTasks(currentTasks => [...currentTasks, {text: savedText[i], id: savedID[i], date: savedDate[i], time: savedTime[i]}]);
             }
         }
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white', 
         textTransform: 'uppercase', 
-        fontWeight: 500, 
+        fontWeight: '500', 
         textAlign: 'center',
         fontFamily: 'Helvetica',
     },

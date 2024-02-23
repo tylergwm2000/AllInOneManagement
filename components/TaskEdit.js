@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white', 
         textTransform: 'uppercase', 
-        fontWeight: 500, 
+        fontWeight: '500', 
         textAlign: 'center',
         fontFamily: 'Helvetica',
     },
