@@ -8,10 +8,10 @@ export default function WeatherTopView(props) {
     var timeOfDay;
     var currentDate = new Date(currentTime);
     var currentTemp = Math.round(props.weatherData.current_weather.temperature);
-    var highTemp = Math.round(props.weatherData.daily.temperature_2m_max[0]);
-    var lowTemp = Math.round(props.weatherData.daily.temperature_2m_min[0]);
-    sunrise = new Date(props.weatherData.daily.sunrise[0]);
-    sunset = new Date(props.weatherData.daily.sunset[0]);
+    var highTemp = Math.round(props.weatherData.daily.temperature_2m_max[1]);
+    var lowTemp = Math.round(props.weatherData.daily.temperature_2m_min[1]);
+    sunrise = new Date(props.weatherData.daily.sunrise[1]);
+    sunset = new Date(props.weatherData.daily.sunset[1]);
     if (currentDate > sunrise && currentDate < sunset){
       timeOfDay='morning';
     } else {

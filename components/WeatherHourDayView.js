@@ -42,8 +42,8 @@ export default function WeatherHourDayView(props) {
     function determineWeather(weathercode, time){
         var timeOfDay = time;
         if (time !== 'daily'){
-            var sunrise = new Date(props.weatherData.daily.sunrise[0]);
-            var sunset = new Date(props.weatherData.daily.sunset[0]);
+            var sunrise = new Date(props.weatherData.daily.sunrise[1]);
+            var sunset = new Date(props.weatherData.daily.sunset[1]);
             var current = new Date(time);
             if (current > sunrise && current < sunset){
                 timeOfDay='morning';
@@ -112,19 +112,22 @@ export default function WeatherHourDayView(props) {
     }
 
     function renderDate(datetime){
-        var date = new Date(datetime);
+        var date = new Date(datetime); //this works only if datetime is in format 2025-06-19T19:00
+        var date1 = datetime.split("-").map(function(item) {return parseInt(item, 10)});//for 2025-06-19, splits by '-' into array and converts to number
+        var date2 = new Date(date1[0], date1[1]-1, date1[2]);//revert back into a date object and subtract monthindex by 1 due to Jan = 0 date(year,monthIndex,day)
         var today = new Date();
-        var yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+        var tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
         var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var monthsOfYear = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var returndate;
         if (forecastView === 'daily')
-            if (date.getDay() === today.getDay())
-                returndate = <Text style={styles.itemText}>Today</Text>;
-            else if (date.getDay() === yesterday.getDay() && date.getDate() < today.getDate())
-                returndate = <Text style={styles.itemText}>Yesterday</Text>;
+            if (date2.getDay() === today.getDay())
+                returndate = <Text style={styles.itemText}>{monthsOfYear[date2.getMonth()] +" "+ date2.getDate() +" Today"}</Text>;
+            else if (date2.getDay() === tomorrow.getDay())
+                returndate = <Text style={styles.itemText}>{monthsOfYear[date2.getMonth()] +" "+ date2.getDate() +" Tomorrow"}</Text>;
             else 
-                returndate = <Text style={styles.itemText}>{daysOfWeek[date.getDay()]}</Text>;
+                returndate = <Text style={styles.itemText}>{monthsOfYear[date2.getMonth()] +" "+ date2.getDate() +" "+ daysOfWeek[date2.getDay()]}</Text>;
         else
             returndate = <Text style={styles.itemText}>{date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</Text>;
         return returndate;

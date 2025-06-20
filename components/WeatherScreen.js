@@ -11,7 +11,7 @@ import WeatherHourDayView from './WeatherHourDayView';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREATE WeatherBottomView, ADD LOCAL WEATHER
+export default function WeatherScreen(){//TODO MAKE WEATHER SCREEN LOOK MORE LIKE ONEPLUS WEATHER APP, ADD LOCAL WEATHER
   const [locationInputVisibility, setModalVisibility] = useState(false);
   const [settingsVisibility, setSettingsVisibility] = useState(false);
   const [location, setLocation] = useState(null);
@@ -69,8 +69,8 @@ export default function WeatherScreen(){//TODO WORK ON WeatherHourDayView, CREAT
       setWeatherData(data);
       setRefreshing(true); 
       currentDate = new Date(data.current_weather.time);
-      sunrise = new Date(data.daily.sunrise[0]);
-      sunset = new Date(data.daily.sunset[0]);
+      sunrise = new Date(data.daily.sunrise[1]);
+      sunset = new Date(data.daily.sunset[1]);
       if (currentDate > sunrise && currentDate < sunset){
         setTimeOfDay('morning');
       }
