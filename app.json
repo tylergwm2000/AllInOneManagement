@@ -2,7 +2,7 @@
   "expo": {
     "name": "AIO Management",
     "slug": "AllInOneManagement",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,7 +21,7 @@
     "android": {
       "package": "com.AIOManagement",
       "permissions": [],
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
@@ -34,6 +34,9 @@
       "eas": {
         "projectId": "6351a7e3-684c-402c-a48c-c95d9fabf131"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

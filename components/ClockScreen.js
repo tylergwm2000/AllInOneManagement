@@ -7,7 +7,7 @@ import LocationInput from './LocationInput';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function ClockScreen(){ //TODO ADD LOCAL TIME
+export default function ClockScreen(){ //TODO ADD LOCAL TIME AND MAKE TIME CLICKABLE TO OPEN CLOCK WITH CURRENT TIME TICKING INSTEAD OF DELETE
     const [modalVisibility, setModalVisibility] = useState(false);
     const [timezones, setTimeZone] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ export default function ClockScreen(){ //TODO ADD LOCAL TIME
       setModalVisibility(false);
     }
 
-    async function addTimeZone(city){ //TODO add loading screen?
+    async function addTimeZone(city){ 
       setModalVisibility(false);
       var added = false;
       for (let i=0; i<timezones.length; i++){

@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Image, Pressable, Dimensions, ScrollView } from
 import { useState, useEffect } from 'react';
 import images from './WeatherImage';
 
-export default function WeatherHourDayView(props) {
+export default function WeatherHourDayView(props) { 
     
     const [forecastView, setForecastView] = useState('daily');
     const [daily, setDaily] = useState([]);
@@ -121,7 +121,7 @@ export default function WeatherHourDayView(props) {
         var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         var monthsOfYear = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var returndate;
-        if (forecastView === 'daily')
+        if (datetime.length <= 10)
             if (date2.getDay() === today.getDay())
                 returndate = <Text style={styles.itemText}>{monthsOfYear[date2.getMonth()] +" "+ date2.getDate() +" Today"}</Text>;
             else if (date2.getDay() === tomorrow.getDay())
@@ -138,47 +138,57 @@ export default function WeatherHourDayView(props) {
             formatWeatherData(props.weatherData);
     }, [props.refreshing]);
     return (
-        <View style={styles.container}> 
-            <View style={styles.selectionBar}> 
-                <Pressable style={[styles.selection, {backgroundColor: forecastView === 'daily' ? '#052547' : '#007bff'}]} onPress={switchView.bind(this, 'daily')}><View><Text style={styles.itemText}>Daily Forecast</Text></View></Pressable>
-                <Pressable style={[styles.selection, {backgroundColor: forecastView === 'hourly' ? '#052547' : '#007bff'}]} onPress={switchView.bind(this, 'hourly')}><View><Text style={styles.itemText}>Hourly Forecast</Text></View></Pressable>
+        <View>
+            <View style={styles.hourContainer}>
+                <ScrollView horizontal={true}>
+                    {hourly.map((hour) => 
+                    <View key={hour.time} style={styles.item}>
+                        {renderDate(hour.time)}
+                        {renderWeatherImage(hour.weathercode, hour.time)}
+                        <Text style={styles.itemText}>{hour.temp}{tempUnit}</Text>
+                    </View>
+                    )}
+                </ScrollView>
             </View>
-            <ScrollView horizontal={true} style={forecastView == 'daily' ? {display: 'none'} : {display: 'flex'}}>
-                {hourly.map((hour) => 
-                <View key={hour.time} style={styles.item}>
-                    {renderDate(hour.time)}
-                    {renderWeatherImage(hour.weathercode, hour.time)}
-                    {renderForecast(hour.weathercode)}
-                    <Text style={styles.itemText}>{hour.temp}{tempUnit}</Text>
+            <View style={styles.dayContainer}> 
+                <View>
+                    {daily.map((day) =>
+                    <View key={day.day} style={styles.dayItem}>
+                        <View style={styles.daySection}>
+                            {renderDate(day.day)}
+                        </View>
+                        <View style={styles.daySectionCenter}>
+                            {renderWeatherImage(day.weathercode)}
+                        </View>
+                        <View style={styles.daySectionRight}>
+                            <Text style={styles.itemText}>
+                                {day.min}{tempUnit} / {day.max}{tempUnit}
+                            </Text>
+                        </View>
+                    </View>
+                    )}
                 </View>
-                )}
-            </ScrollView>
-            <ScrollView horizontal={true} style={forecastView == 'daily' ? {display: 'flex'} : {display: 'none'}}>
-                {daily.map((day) =>
-                <View key={day.day} style={styles.item}>
-                    {renderDate(day.day)}
-                    {renderWeatherImage(day.weathercode)}
-                    {renderForecast(day.weathercode)}
-                    <Text style={styles.itemText}>H:{day.max}{tempUnit}</Text>
-                    <Text style={styles.itemText}>L:{day.min}{tempUnit}</Text>
-                </View>
-                )}
-            </ScrollView>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    dayContainer: {
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 25,
-        backgroundColor: '#007bff',
-        height: Dimensions.get('screen').height/3,
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
         borderRadius: 10,
-        opacity: 0.65,
+    },
+    hourContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+        borderRadius: 10,
     },
     selectionBar: {
         flex: 1,
@@ -198,21 +208,46 @@ const styles = StyleSheet.create({
         backgroundColor: '#052547',
     },
     weatherImage: {
-        width: 25,
-        height: 25,
+        width: 35,
+        height: 35,
     },
     item: {
         marginHorizontal: 10,
-        borderColor: '#ffffff', //figure out how to get this and itemText color to change for weathercode 0,1,2,3 (day)
-        borderWidth: 1,
         width: 80,
         height: 150,
-        borderRadius: 50,
         paddingVertical: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
+    dayItem: {
+        flexDirection: 'row',
+        marginVertical: 10,
+        paddingHorizontal: 10,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     itemText: {
         color: '#ffffff', 
+    },
+    dayItem: {
+        flexDirection: 'row',
+        marginVertical: 10,
+        height: 40,
+        width: '100%',
+        paddingHorizontal: 10,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    daySection: {
+        flex: 1.5,
+        alignItems: 'flex-start',
+    },
+    daySectionCenter: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    daySectionRight:{
+        flex: 1.5,
+        alignItems: 'flex-end',
     },
 });
